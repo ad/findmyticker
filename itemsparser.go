@@ -146,7 +146,7 @@ func ParseItems() (Items, error) {
 
 	lastModTime = stat.ModTime()
 
-	fmt.Println(itemsPath, "updated at", lastModTime)
+	// fmt.Println(itemsPath, "updated at", lastModTime)
 
 	// Open items file
 	f, errReadFile := os.ReadFile(itemsPath)

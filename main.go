@@ -9,6 +9,7 @@ import (
 	"time"
 
 	conf "github.com/ad/findmyticker/config"
+	"github.com/ad/lru"
 	"github.com/getlantern/systray"
 	"github.com/kardianos/osext"
 )
@@ -16,11 +17,14 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.0.2`
+	version = `0.0.3`
 
-	menuInfo *systray.MenuItem
+	menuInfo  *systray.MenuItem
+	menuError *systray.MenuItem
 
 	config *conf.Config
+
+	lruCache *lru.Cache[string, [2]float64]
 )
 
 func main() {
@@ -32,6 +36,8 @@ func main() {
 	}
 
 	config = cfg
+
+	lruCache = lru.New[string, [2]float64]()
 
 	_, cancel = context.WithCancel(context.Background())
 
@@ -59,6 +65,10 @@ func onReady() {
 
 	menuInfo = systray.AddMenuItem(fmt.Sprintf("started at: %s", time.Now().Format("15:04:05")), "")
 	menuInfo.Disable()
+
+	menuError = systray.AddMenuItem(fmt.Sprintf("error: %s", "none"), "")
+	menuError.Disable()
+	menuError.Hide()
 
 	mRestart := systray.AddMenuItem("Restart", "Restart app")
 	mQuit := systray.AddMenuItem("Quit", "Quit app")

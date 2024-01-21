@@ -26,6 +26,15 @@ func sendToHomeAssistant(items *Items) {
 			continue
 		}
 
+		oldValue, ok := lruCache.Get(item.Identifier)
+		if ok {
+			if oldValue[0] == item.Location.Latitude && oldValue[1] == item.Location.Longitude {
+				continue
+			}
+		}
+
+		lruCache.Set(item.Identifier, [2]float64{item.Location.Latitude, item.Location.Longitude})
+
 		if menuInfo != nil {
 			menuInfo.SetTitle(fmt.Sprintf("last update: %s", time.Now().Format("15:04:05")))
 		}

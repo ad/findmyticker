@@ -1,3 +1,7 @@
+# github.com/ad/lru v0.0.0-20220811203621-3f121ec78c65
+## explicit; go 1.19
+github.com/ad/lru
+github.com/ad/lru/internal
 # github.com/getlantern/context v0.0.0-20190109183933-c447772a6520
 ## explicit
 github.com/getlantern/context

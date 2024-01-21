@@ -5,12 +5,17 @@ import (
 )
 
 func run() {
+	if menuError != nil {
+		menuError.Hide()
+	}
+
 	items, errParseItems := ParseItems()
 	if errParseItems != nil {
 		fmt.Printf("Error: %+v\n", errParseItems)
 
-		if menuInfo != nil {
-			menuInfo.SetTitle(fmt.Sprintf("error: %s", errParseItems.Error()))
+		if menuError != nil {
+			menuError.SetTitle(fmt.Sprintf("error: %s", errParseItems.Error()))
+			menuError.Show()
 		}
 
 		return

@@ -3,6 +3,7 @@ module github.com/ad/findmyticker
 go 1.21.5
 
 require (
+	github.com/ad/lru v0.0.0-20220811203621-3f121ec78c65
 	github.com/getlantern/systray v1.2.2
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 )
