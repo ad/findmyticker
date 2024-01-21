@@ -15,8 +15,9 @@ import (
 
 // Config ...
 type Config struct {
-	Token string `json:"token"`
-	URL   string `json:"url"`
+	Token  string `json:"token"`
+	URL    string `json:"url"`
+	Period int    `json:"period"`
 }
 
 func InitConfig() (*Config, error) {
@@ -61,6 +62,10 @@ func InitConfig() (*Config, error) {
 		return nil, fmt.Errorf("URL env var not set")
 	}
 
+	if config.Period == 0 {
+		config.Period = 60
+	}
+
 	return config, nil
 }
 
@@ -79,7 +84,8 @@ func openConfigEditor(path string) error {
 		// path does *not* exist
 		initialConfig := `{
 	"url": "homeassistant url",
-	"token": "homeassistant token"
+	"token": "homeassistant token",
+	"period": 60
 }`
 
 		f, err := os.Create(path)

@@ -16,7 +16,7 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.0.1`
+	version = `0.0.2`
 
 	menuInfo *systray.MenuItem
 
@@ -43,7 +43,7 @@ func main() {
 	go func() {
 		run()
 
-		for range time.Tick(1 * time.Minute) {
+		for range time.Tick(time.Duration(config.Period) * time.Second) {
 			run()
 		}
 	}()
