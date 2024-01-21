@@ -2,7 +2,7 @@
 
 ### build
 
-```go build -o ./build/FindMy\ ticker.app/MacOS/findmyticker .```
+```go build -o ./build/FindMy\ ticker.app/Contents/MacOS/findmyticker .```
 
 
 ### run
