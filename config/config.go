@@ -86,7 +86,8 @@ func openConfigEditor(path string) error {
 		initialConfig := `{
 	"url": "homeassistant url",
 	"token": "homeassistant token",
-	"period": 60
+	"period": 60,
+	"ignore": []
 }`
 
 		f, err := os.Create(path)
@@ -104,7 +105,7 @@ func openConfigEditor(path string) error {
 		w.Flush()
 	}
 
-	cmd := exec.Command(`open`, path)
+	cmd := exec.Command(`open`, "-t", path)
 	stderr, err := cmd.StderrPipe()
 	log.SetOutput(os.Stderr)
 
