@@ -15,9 +15,10 @@ import (
 
 // Config ...
 type Config struct {
-	Token  string `json:"token"`
-	URL    string `json:"url"`
-	Period int    `json:"period"`
+	Token  string   `json:"token"`
+	URL    string   `json:"url"`
+	Period int      `json:"period"`
+	Ignore []string `json:"ignore"`
 }
 
 func InitConfig() (*Config, error) {

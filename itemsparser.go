@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"time"
 )
 
-var (
-	lastModTime time.Time
-)
+// var (
+// 	lastModTime time.Time
+// )
 
 type Items []struct {
 	Identifier string `json:"identifier,omitempty"`
@@ -135,16 +134,16 @@ func ParseItems() (Items, error) {
 
 	itemsPath := fmt.Sprintf("%s/Library/Caches/com.apple.findmy.fmipcore/Items.data", u.HomeDir)
 
-	stat, errStat := os.Stat(itemsPath)
-	if errStat != nil {
-		return nil, fmt.Errorf("stat: %+v", errStat)
-	}
+	// stat, errStat := os.Stat(itemsPath)
+	// if errStat != nil {
+	// 	return nil, fmt.Errorf("stat: %+v", errStat)
+	// }
 
-	if lastModTime == stat.ModTime() {
-		return nil, nil
-	}
+	// if lastModTime == stat.ModTime() {
+	// 	return nil, nil
+	// }
 
-	lastModTime = stat.ModTime()
+	// lastModTime = stat.ModTime()
 
 	// fmt.Println(itemsPath, "updated at", lastModTime)
 

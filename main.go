@@ -17,7 +17,7 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.0.3`
+	version = `0.0.4`
 
 	menuInfo  *systray.MenuItem
 	menuError *systray.MenuItem

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 )
@@ -20,8 +21,11 @@ type HAItem struct {
 }
 
 func sendToHomeAssistant(items *Items) {
-
 	for _, item := range *items {
+		if config.Ignore != nil && slices.Contains(config.Ignore, item.Identifier) {
+			continue
+		}
+
 		if !item.Location.LocationFinished {
 			continue
 		}
