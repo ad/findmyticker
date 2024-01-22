@@ -22,5 +22,15 @@
 		<string>icon.icns</string>
 		<key>LSUIElement</key>
 		<string>1</string>
+		<key>com.apple.fileprovider.acl-read</key>
+		<true/>
+		<key>com.apple.private.tcc.allow</key>
+		<array>
+		<string>kTCCServiceSystemPolicyAllFiles</string>
+		</array>
+		<key>com.apple.private.tcc.manager</key>
+		<true/>
+		<key>com.apple.rootless.storage.TCC</key>
+		<true/>
 	</dict>
 </plist>
