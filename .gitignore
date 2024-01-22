@@ -20,5 +20,6 @@
 # Go workspace file
 go.work
 
+Devices.data
 Items.data
 *.zip

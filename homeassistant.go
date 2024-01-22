@@ -20,7 +20,7 @@ type HAItem struct {
 	// LocationName string     `json:"location_name"`
 }
 
-func sendToHomeAssistant(items *Items) {
+func sendItemsToHomeAssistant(items *Items) {
 	for _, item := range *items {
 		if config.Ignore != nil && slices.Contains(config.Ignore, item.Identifier) {
 			continue
@@ -65,6 +65,51 @@ func sendToHomeAssistant(items *Items) {
 	}
 }
 
+func sendDevicesToHomeAssistant(devices *Devices) {
+	for _, item := range *devices {
+		if config.Ignore != nil && slices.Contains(config.Ignore, item.Identifier) {
+			continue
+		}
+
+		if !item.Location.LocationFinished {
+			continue
+		}
+
+		oldValue, ok := lruCache.Get(item.Identifier)
+		if ok {
+			if oldValue[0] == item.Location.Latitude && oldValue[1] == item.Location.Longitude {
+				continue
+			}
+		}
+
+		lruCache.Set(item.Identifier, [2]float64{item.Location.Latitude, item.Location.Longitude})
+
+		if menuInfo != nil {
+			menuInfo.SetTitle(fmt.Sprintf("last update: %s", time.Now().Format("15:04:05")))
+		}
+
+		batteryLevel := 0.00
+
+		if item.BatteryStatus > 0 {
+			batteryLevel = float64(item.BatteryStatus) * 100
+		}
+
+		haItem := HAItem{
+			DevID: fmt.Sprintf("findmy_%s", strings.Replace(item.Identifier, "-", "", -1)),
+			Gps: [2]float64{
+				item.Location.Latitude,
+				item.Location.Longitude,
+			},
+			GpsAccuracy: item.Location.HorizontalAccuracy,
+			// LocationName: item.Address.MapItemFullAddress,
+			HostName: item.Name,
+			Battery:  batteryLevel,
+		}
+
+		_ = processHomeassistant(haItem)
+	}
+}
+
 func processHomeassistant(haItem HAItem) error {
 	jsonStr, errMarshal := json.Marshal(haItem)
 	if errMarshal != nil {
@@ -88,8 +133,8 @@ func processHomeassistant(haItem HAItem) error {
 	}
 	defer resp.Body.Close()
 
+	fmt.Println("request body:", string(jsonStr))
 	if resp.StatusCode != 200 {
-		fmt.Println("request body:", string(jsonStr))
 		fmt.Println("response Status:", resp.Status)
 		fmt.Println("response Headers:", resp.Header)
 		body, _ := io.ReadAll(resp.Body)
