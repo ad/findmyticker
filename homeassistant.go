@@ -43,6 +43,12 @@ func sendToHomeAssistant(items *Items) {
 			menuInfo.SetTitle(fmt.Sprintf("last update: %s", time.Now().Format("15:04:05")))
 		}
 
+		batteryLevel := 0.00
+
+		if item.BatteryStatus > 0 {
+			batteryLevel = 100 / float64(item.BatteryStatus)
+		}
+
 		haItem := HAItem{
 			DevID: fmt.Sprintf("findmy_%s", strings.Replace(item.Identifier, "-", "", -1)),
 			Gps: [2]float64{
@@ -52,7 +58,7 @@ func sendToHomeAssistant(items *Items) {
 			GpsAccuracy: item.Location.HorizontalAccuracy,
 			// LocationName: item.Address.MapItemFullAddress,
 			HostName: item.Name,
-			Battery:  float64(item.BatteryStatus) * 100,
+			Battery:  batteryLevel,
 		}
 
 		_ = processHomeassistant(haItem)
