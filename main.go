@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"os/exec"
 	"syscall"
 	"time"
 
@@ -17,7 +19,7 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.1.1`
+	version = `0.1.2`
 
 	menuInfo  *systray.MenuItem
 	menuError *systray.MenuItem
@@ -36,6 +38,10 @@ func main() {
 	}
 
 	config = cfg
+
+	if config.OpenFindMyOnStartup {
+		runFindMyApp()
+	}
 
 	lruCache = lru.New[string, [2]float64]()
 
@@ -116,6 +122,29 @@ func Restart() error {
 // Open config
 func OpenConfig() error {
 	_ = conf.OpenConfigEditor()
+
+	return nil
+}
+
+func runFindMyApp() error {
+	cmd := exec.Command(`open`, "--hide", "--background", "/System/Applications/FindMy.app")
+	stderr, err := cmd.StderrPipe()
+	// log.SetOutput(os.Stderr)
+
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	slurp, _ := io.ReadAll(stderr)
+	fmt.Printf("%s\n", slurp)
+
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
 
 	return nil
 }
