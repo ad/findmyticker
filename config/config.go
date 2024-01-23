@@ -26,23 +26,20 @@ type Config struct {
 func InitConfig() (*Config, error) {
 	config := &Config{}
 
-	u, err := user.Lookup(os.ExpandEnv("$USER"))
-	if err != nil {
-		return nil, fmt.Errorf("user lookup: %+v", err)
-	}
-
-	configFileName := fmt.Sprintf("%s/findmytickerconfig.json", u.HomeDir)
+	configFileName, errGetConfigPath := GetConfigPath()
 
 	var initFromFile = false
 
-	if _, err := os.Stat(configFileName); err == nil {
-		jsonFile, err := os.Open(configFileName)
-		if err == nil {
-			byteValue, _ := io.ReadAll(jsonFile)
-			if err = json.Unmarshal(byteValue, &config); err != nil {
-				return nil, fmt.Errorf("error on unmarshal config from file %s", err.Error())
-			} else {
-				initFromFile = true
+	if errGetConfigPath == nil {
+		if _, err := os.Stat(configFileName); err == nil {
+			jsonFile, err := os.Open(configFileName)
+			if err == nil {
+				byteValue, _ := io.ReadAll(jsonFile)
+				if err = json.Unmarshal(byteValue, &config); err != nil {
+					return nil, fmt.Errorf("error on unmarshal config from file %s", err.Error())
+				} else {
+					initFromFile = true
+				}
 			}
 		}
 	}
@@ -54,13 +51,13 @@ func InitConfig() (*Config, error) {
 	}
 
 	if config.Token == "" {
-		_ = openConfigEditor(configFileName)
+		_ = OpenConfigEditor()
 
 		return nil, fmt.Errorf("TOKEN env var not set")
 	}
 
 	if config.URL == "" {
-		_ = openConfigEditor(configFileName)
+		_ = OpenConfigEditor()
 
 		return nil, fmt.Errorf("URL env var not set")
 	}
@@ -80,7 +77,12 @@ func lookupEnvOrString(key, defaultVal string) string {
 	return defaultVal
 }
 
-func openConfigEditor(path string) error {
+func OpenConfigEditor() error {
+	path, errGetConfigPath := GetConfigPath()
+	if errGetConfigPath != nil {
+		return errGetConfigPath
+	}
+
 	if _, err := os.Stat(path); err == nil {
 		// path exists
 	} else if errors.Is(err, os.ErrNotExist) {
@@ -129,4 +131,13 @@ func openConfigEditor(path string) error {
 	}
 
 	return nil
+}
+
+func GetConfigPath() (string, error) {
+	u, err := user.Lookup(os.ExpandEnv("$USER"))
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/findmytickerconfig.json", u.HomeDir), nil
 }
