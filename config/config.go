@@ -15,13 +15,14 @@ import (
 
 // Config ...
 type Config struct {
-	Token               string   `json:"token"`
-	URL                 string   `json:"url"`
-	Period              int      `json:"period"`
-	Ignore              []string `json:"ignore"`
-	AllowItems          bool     `json:"allowItems"`
-	AllowDevices        bool     `json:"allowDevices"`
-	OpenFindMyOnStartup bool     `json:"openFindMyOnStartup"`
+	Token                    string   `json:"token"`
+	URL                      string   `json:"url"`
+	Period                   int      `json:"period"`
+	Ignore                   []string `json:"ignore"`
+	AllowItems               bool     `json:"allowItems"`
+	AllowDevices             bool     `json:"allowDevices"`
+	OpenFindMyOnStartup      bool     `json:"openFindMyOnStartup"`
+	BringFindMyToFrontOnIdle bool     `json:"bringFindMyToFrontOnIdle"`
 }
 
 func InitConfig() (*Config, error) {
@@ -95,7 +96,8 @@ func OpenConfigEditor() error {
 	"ignore": [],
 	"allowItems": true,
 	"allowDevices": true,
-	"openFindMyOnStartup": true
+	"openFindMyOnStartup": true,
+	"bringFindMyToFrontOnIdle": true
 }`
 
 		f, err := os.Create(path)

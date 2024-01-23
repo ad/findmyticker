@@ -19,7 +19,7 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.1.2`
+	version = `0.1.3`
 
 	menuInfo  *systray.MenuItem
 	menuError *systray.MenuItem
@@ -40,7 +40,15 @@ func main() {
 	config = cfg
 
 	if config.OpenFindMyOnStartup {
-		runFindMyApp()
+		errRunFindMyApp := runFindMyApp()
+		if errRunFindMyApp != nil {
+			fmt.Printf("runFindMyApp: %s\n", errRunFindMyApp.Error())
+		}
+
+	}
+
+	if config.BringFindMyToFrontOnIdle {
+		go bringFindMyToFrontOnIdle()
 	}
 
 	lruCache = lru.New[string, [2]float64]()
@@ -130,6 +138,51 @@ func runFindMyApp() error {
 	cmd := exec.Command(`open`, "--hide", "--background", "/System/Applications/FindMy.app")
 	stderr, err := cmd.StderrPipe()
 	// log.SetOutput(os.Stderr)
+
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	slurp, _ := io.ReadAll(stderr)
+	fmt.Printf("%s\n", slurp)
+
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func bringFindMyToFrontOnIdle() error {
+	appleScript := `repeat
+	set num to (do shell script "ioreg -c IOHIDSystem | awk '/HIDIdleTime/ {print $NF/1000000000; exit}'")
+	
+	set o to (offset of "." in num)
+	if ((o > 0) and (0.0 as text is "0,0")) then set num to (text 1 thru (o - 1) of num & "," & text (o + 1) thru -1 of num)
+	set idleTime to num as integer
+
+	if idleTime is greater than or equal to (1 * 10) then
+		log "is idle"
+		tell application "System Events"
+			tell process "Find My"
+				set frontmost to true
+			end tell
+			delay 16
+			tell process "Finder"
+				set frontmost to true
+			end tell
+			delay 16
+		end tell
+	end if
+	delay 1
+end repeat`
+
+	cmd := exec.Command("/usr/bin/osascript", "-e", appleScript)
+	stderr, err := cmd.StderrPipe()
 
 	if err != nil {
 		return err
