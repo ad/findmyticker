@@ -19,7 +19,7 @@ import (
 var (
 	cancel context.CancelFunc
 
-	version = `0.1.5`
+	version = `0.1.6`
 
 	menuInfo  *systray.MenuItem
 	menuError *systray.MenuItem
@@ -97,7 +97,6 @@ func onReady() {
 		case <-mConfig.ClickedCh:
 			fmt.Println("Opening config editor")
 			_ = OpenConfig()
-			return
 		case <-mQuit.ClickedCh:
 			fmt.Println("Requesting quit")
 			systray.Quit()
@@ -121,6 +120,8 @@ func Restart() error {
 	if error != nil {
 		return error
 	}
+
+	systray.Quit()
 
 	return nil
 }

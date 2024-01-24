@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"os/user"
@@ -139,26 +138,7 @@ func OpenConfigEditor() error {
 		w.Flush()
 	}
 
-	cmd := exec.Command(`open`, "-e", path)
-	stderr, err := cmd.StderrPipe()
-	log.SetOutput(os.Stderr)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	slurp, _ := io.ReadAll(stderr)
-	fmt.Printf("%s\n", slurp)
-
-	if err := cmd.Wait(); err != nil {
-		log.Fatal(err)
-	}
-
-	return nil
+	return exec.Command(`open`, "-e", path).Run()
 }
 
 func GetConfigPath() (string, error) {
