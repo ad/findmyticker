@@ -39,7 +39,7 @@ func main() {
 
 	config = cfg
 
-	if config.OpenFindMyOnStartup {
+	if config.FindMyApp.OpenOnStartup {
 		errRunFindMyApp := runFindMyApp()
 		if errRunFindMyApp != nil {
 			fmt.Printf("runFindMyApp: %s\n", errRunFindMyApp.Error())
@@ -47,7 +47,7 @@ func main() {
 
 	}
 
-	if config.BringFindMyToFrontOnIdle {
+	if config.FindMyApp.BringToFrontOnIdle {
 		go bringFindMyToFrontOnIdle()
 	}
 
@@ -158,14 +158,14 @@ func runFindMyApp() error {
 }
 
 func bringFindMyToFrontOnIdle() error {
-	appleScript := `repeat
+	appleScript := fmt.Sprintf(`repeat
 	set num to (do shell script "ioreg -c IOHIDSystem | awk '/HIDIdleTime/ {print $NF/1000000000; exit}'")
 	
 	set o to (offset of "." in num)
 	if ((o > 0) and (0.0 as text is "0,0")) then set num to (text 1 thru (o - 1) of num & "," & text (o + 1) thru -1 of num)
 	set idleTime to num as integer
 
-	if idleTime is greater than or equal to (1 * 10) then
+	if idleTime is greater than or equal to (%d) then
 		log "is idle"
 		tell application "System Events"
 			tell process "Find My"
@@ -179,7 +179,7 @@ func bringFindMyToFrontOnIdle() error {
 		end tell
 	end if
 	delay 1
-end repeat`
+end repeat`, config.FindMyApp.BringToFronDelay)
 
 	cmd := exec.Command("/usr/bin/osascript", "-e", appleScript)
 	stderr, err := cmd.StderrPipe()

@@ -15,14 +15,17 @@ import (
 
 // Config ...
 type Config struct {
-	Token                    string   `json:"token"`
-	URL                      string   `json:"url"`
-	Period                   int      `json:"period"`
-	Ignore                   []string `json:"ignore"`
-	AllowItems               bool     `json:"allowItems"`
-	AllowDevices             bool     `json:"allowDevices"`
-	OpenFindMyOnStartup      bool     `json:"openFindMyOnStartup"`
-	BringFindMyToFrontOnIdle bool     `json:"bringFindMyToFrontOnIdle"`
+	Token        string   `json:"token"`
+	URL          string   `json:"url"`
+	Period       int      `json:"period"`
+	Ignore       []string `json:"ignore"`
+	AllowItems   bool     `json:"allowItems"`
+	AllowDevices bool     `json:"allowDevices"`
+	FindMyApp    struct {
+		BringToFrontOnIdle bool `json:"bringToFrontOnIdle"`
+		BringToFronDelay   int  `json:"bringToFrontDelay"`
+		OpenOnStartup      bool `json:"openOnStartup"`
+	} `json:"findMyApp"`
 }
 
 func InitConfig() (*Config, error) {
@@ -64,8 +67,12 @@ func InitConfig() (*Config, error) {
 		return nil, fmt.Errorf("URL env var not set")
 	}
 
-	if config.Period == 0 {
+	if config.Period <= 0 {
 		config.Period = 60
+	}
+
+	if config.FindMyApp.BringToFronDelay <= 0 {
+		config.FindMyApp.BringToFronDelay = 60
 	}
 
 	return config, nil
@@ -96,8 +103,11 @@ func OpenConfigEditor() error {
 	"ignore": [],
 	"allowItems": true,
 	"allowDevices": true,
-	"openFindMyOnStartup": true,
-	"bringFindMyToFrontOnIdle": true
+	"findMyApp": {
+		"openOnStartup": true,
+		"bringToFrontOnIdle": true,
+		"bringToFrontDelay": 60
+	}
 }`
 
 		f, err := os.Create(path)
