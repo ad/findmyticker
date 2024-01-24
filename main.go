@@ -92,7 +92,6 @@ func onReady() {
 		select {
 		case <-mRestart.ClickedCh:
 			fmt.Println("Requesting restart")
-			cancel()
 			_ = Restart()
 			return
 		case <-mConfig.ClickedCh:
@@ -101,7 +100,6 @@ func onReady() {
 			return
 		case <-mQuit.ClickedCh:
 			fmt.Println("Requesting quit")
-			cancel()
 			systray.Quit()
 			return
 		}
