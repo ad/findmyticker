@@ -15,13 +15,18 @@ import (
 
 // Config ...
 type Config struct {
-	Token        string   `json:"token"`
-	URL          string   `json:"url"`
-	Period       int      `json:"period"`
-	Ignore       []string `json:"ignore"`
-	AllowItems   bool     `json:"allowItems"`
-	AllowDevices bool     `json:"allowDevices"`
-	FindMyApp    struct {
+	Homeassistant struct {
+		Token string `json:"token"`
+		URL   string `json:"url"`
+	} `json:"homeassistant"`
+	Update struct {
+		Period          int      `json:"period"`
+		Ignore          []string `json:"ignore"`
+		AllowItems      bool     `json:"allowItems"`
+		AllowDevices    bool     `json:"allowDevices"`
+		MinimalAccuracy int      `json:"minimalAccuracy"`
+	} `json:"update"`
+	FindMyApp struct {
 		BringToFrontOnIdle bool `json:"bringToFrontOnIdle"`
 		BringToFronDelay   int  `json:"bringToFrontDelay"`
 		OpenOnStartup      bool `json:"openOnStartup"`
@@ -50,29 +55,33 @@ func InitConfig() (*Config, error) {
 	}
 
 	if !initFromFile {
-		flag.StringVar(&config.Token, "TOKEN", lookupEnvOrString("TOKEN", config.Token), "homeassistant token")
-		flag.StringVar(&config.URL, "URL", lookupEnvOrString("URL", config.URL), "homeassistant url")
+		flag.StringVar(&config.Homeassistant.Token, "TOKEN", lookupEnvOrString("TOKEN", config.Homeassistant.Token), "homeassistant token")
+		flag.StringVar(&config.Homeassistant.URL, "URL", lookupEnvOrString("URL", config.Homeassistant.URL), "homeassistant url")
 		flag.Parse()
 	}
 
-	if config.Token == "" {
+	if config.Homeassistant.Token == "" {
 		_ = OpenConfigEditor()
 
 		return nil, fmt.Errorf("TOKEN env var not set")
 	}
 
-	if config.URL == "" {
+	if config.Homeassistant.URL == "" {
 		_ = OpenConfigEditor()
 
 		return nil, fmt.Errorf("URL env var not set")
 	}
 
-	if config.Period <= 0 {
-		config.Period = 60
+	if config.Update.Period <= 0 {
+		config.Update.Period = 60
 	}
 
 	if config.FindMyApp.BringToFronDelay <= 0 {
 		config.FindMyApp.BringToFronDelay = 60
+	}
+
+	if config.Update.MinimalAccuracy <= 0 {
+		config.Update.MinimalAccuracy = 200
 	}
 
 	return config, nil
@@ -97,12 +106,17 @@ func OpenConfigEditor() error {
 	} else if errors.Is(err, os.ErrNotExist) {
 		// path does *not* exist
 		initialConfig := `{
-	"url": "homeassistant url",
-	"token": "homeassistant token",
-	"period": 60,
-	"ignore": [],
-	"allowItems": true,
-	"allowDevices": true,
+	"homeassistant": {
+		"url": "homeassistant url",
+		"token": "homeassistant token"
+	},
+	"update": {
+		"period": 60,
+		"ignore": [],
+		"allowItems": true,
+		"allowDevices": true,
+		"minimalAccuracy": 200
+	},
 	"findMyApp": {
 		"openOnStartup": true,
 		"bringToFrontOnIdle": true,

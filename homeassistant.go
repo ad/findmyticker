@@ -22,7 +22,7 @@ type HAItem struct {
 
 func sendItemsToHomeAssistant(items *Items) {
 	for _, item := range *items {
-		if config.Ignore != nil && slices.Contains(config.Ignore, item.Identifier) {
+		if config.Update.Ignore != nil && slices.Contains(config.Update.Ignore, item.Identifier) {
 			continue
 		}
 
@@ -67,11 +67,15 @@ func sendItemsToHomeAssistant(items *Items) {
 
 func sendDevicesToHomeAssistant(devices *Devices) {
 	for _, item := range *devices {
-		if config.Ignore != nil && slices.Contains(config.Ignore, item.Identifier) {
+		if config.Update.Ignore != nil && slices.Contains(config.Update.Ignore, item.Identifier) {
 			continue
 		}
 
 		if !item.Location.LocationFinished {
+			continue
+		}
+
+		if item.Location.HorizontalAccuracy > float64(config.Update.MinimalAccuracy) {
 			continue
 		}
 
@@ -116,14 +120,14 @@ func processHomeassistant(haItem HAItem) error {
 		return errMarshal
 	}
 
-	url := config.URL
+	url := config.Homeassistant.URL
 
 	req, errNewRequest := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if errNewRequest != nil {
 		return errNewRequest
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.Token))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.Homeassistant.Token))
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}

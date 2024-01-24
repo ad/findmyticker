@@ -9,7 +9,7 @@ func run() {
 		menuError.Hide()
 	}
 
-	if config.AllowItems {
+	if config.Update.AllowItems {
 		items, errParseItems := ParseItems()
 		if errParseItems != nil {
 			fmt.Printf("Error: %+v\n", errParseItems)
@@ -25,7 +25,7 @@ func run() {
 		}
 	}
 
-	if config.AllowDevices {
+	if config.Update.AllowDevices {
 		devices, errParseItems := ParseDevices()
 		if errParseItems != nil {
 			fmt.Printf("Error: %+v\n", errParseItems)
